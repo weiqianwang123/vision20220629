@@ -15,19 +15,22 @@ using namespace cv;
 
 int main()
 {
-    camera::MercureDriver cap;
+    //camera::MercureDriver cap;
+    VideoCapture  cap("../pnp_b.avi");
     Mat armor_video;
-    armor_video.create( ACQ_FRAME_HEIGHT,ACQ_FRAME_WIDTH,CV_8UC3);
-    int sec=0;
-    int g_sec = 0;
-    double t=0;
+
+    //armor_video.create( ACQ_FRAME_HEIGHT,ACQ_FRAME_WIDTH,CV_8UC3);
     while(1)
     {
         chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
-        int k=0;
+        cap>>armor_video;
+        ArmorDetector detector(armor_video);
+        detector.find_light_blob(armor_video);
+        detector.find_armor_boxes(armor_video);
+
+       /* int k=0;
         int p=0;
         vector<Point2f> _pts;
-        t=(double)getTickCount() ;
         Solver solver;
         ArmorParam param;
         RotatedRect rect;
@@ -38,7 +41,7 @@ int main()
         Mat th2_armor_video;            //binary after sub
         Mat binary;
         vector<Mat> channels;
-        cap>>armor_video;
+
         split(armor_video,channels);
 
 
@@ -102,10 +105,10 @@ int main()
 
 
         }
-        //imshow("armor2",binary);
+        //imshow("armor2",binary);*/
         chrono::steady_clock::time_point t2 = chrono::steady_clock::now();
         chrono::duration<double> time_used = chrono::duration_cast<chrono::duration<double>>(t2 - t1);
-        cout << "solve time cost=" << time_used.count() << "seconds." << endl;
+        cout << "solve time cost=" << 1/time_used.count() << "" << endl;
         imshow("armor1",armor_video);
 
         waitKey(1);

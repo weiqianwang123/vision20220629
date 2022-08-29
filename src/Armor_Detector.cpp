@@ -14,7 +14,8 @@ bool ArmorDetector::filterLightBlob(const std::vector<cv::Point> &contour)
     if (contourArea(contour) / light_rrect.size.area() < param.light_size_area_min_ratio ||
         (light_rrect.angle < 90 && light_rrect.angle > param.light_angle_to_vertigal_max) ||
         (light_rrect.angle > 90 && 180 - light_rrect.angle > param.light_angle_to_vertigal_max) ||
-        light_rrect.size.height / light_rrect.size.width < param.light_height_width_min_ratio)
+        light_rrect.size.height / light_rrect.size.width < param.light_height_width_min_ratio
+            )
         return false;
 
     return true;
@@ -75,8 +76,95 @@ bool ArmorDetector::isBadArmor(int i, int j, const LightBlobs &lightblobs)
 }
 
 
-
-ArmorDetector::ArmorDetector()
+void ArmorDetector::find_light_blob(cv::Mat armor_video)
 {
-    enemy_color = BLUE;
+
+    Mat gray_armor_video;
+    Mat sub_armor_video;
+    Mat th1_armor_video;           //binary after gray
+    Mat th2_armor_video;            //binary after sub
+    Mat binary;
+    RotatedRect rect;
+    vector<Mat> channels;
+
+    split(armor_video,channels);
+    cvtColor(armor_video,gray_armor_video,COLOR_BGR2GRAY);
+    threshold(gray_armor_video,th1_armor_video, param.blue_light_threshold,255,THRESH_BINARY);
+    subtract(channels[0],channels[2],sub_armor_video);
+    threshold(sub_armor_video,th2_armor_video,param.blue_red_diff,255,THRESH_BINARY);
+    binary = th1_armor_video&th2_armor_video;
+
+    vector<vector<Point>> contours;
+    findContours(binary,contours,RETR_EXTERNAL,CHAIN_APPROX_NONE);
+    for(int i=0;i<contours.size();i++)
+    {
+        if(!filterLightBlob(contours[i]))
+        {
+            continue;
+        }
+        else
+        {
+
+            rect = minAreaRect(contours[i]);
+            LightBlob l(rect);
+            _light_blobs.push_back(l);
+            Point2f vertex[4];
+            rect.points(vertex);
+            for(int j=0;j<4;j++)
+            {
+                line(armor_video,vertex[j],vertex[(j+1)%4],Scalar(0,0,255),2,LINE_AA);
+            }
+
+        }
+    }
+    auto cmp = [](LightBlob a, LightBlob b) -> bool
+    {
+        return a.rect.center.x < b.rect.center.x;
+    };
+    sort(_light_blobs.begin(), _light_blobs.end(), cmp);
+
 }
+
+
+void ArmorDetector::find_armor_boxes(Mat armor_video)
+{
+    Solver solver;
+    int p=0;
+    int k=0;
+    vector<Point2f> _pts;
+    for(int i=0;i<_light_blobs.size();i++)
+    {
+        for(int j=i+1;j<_light_blobs.size();j++)
+        {
+            if(!isCoupleLight(_light_blobs[i],_light_blobs[j]))
+                continue;
+            if(isBadArmor(i,j,_light_blobs))
+                continue;
+            _armor_boxes.push_back(ArmorBox(_light_blobs[i],_light_blobs[j]));
+            _armor_boxes[p].getPoints(_pts);
+            solver.solve(_pts,SMALL);
+            cout<< "pitch:"<<solver.pitch<<endl;
+            cout<< "yaw:"<< solver.yaw<<endl;
+            cout<<"distance:"<<solver.distance<<endl;
+            Point2f vertex[4]={};
+            _armor_boxes[k].rect.points(vertex);
+            for(int j=0;j<4;j++)
+            {
+                line(armor_video,vertex[j],vertex[(j+1)%4],Scalar(0,255,0),2,LINE_AA);
+            }
+
+        }
+
+
+    }
+}
+
+
+
+/*ArmorDetector::ArmorDetector(Mat video)
+{
+    armor_video = video;
+    enemy_color = BLUE;
+}*/
+
+
