@@ -1,5 +1,17 @@
 <?xml version="1.0"?>
 <opencv_storage>
+    <!-- 相机参数-->
+    <exposure_auto>0</exposure_auto>
+    <exposure_time>2000</exposure_time> <!-- us -->
+
+    <w_auto>0</w_auto>
+    <w_red>1.98</w_red>
+    <w_green>1.0</w_green>
+    <w_blue>1.98</w_blue>
+
+    <gain_auto>0</gain_auto>
+    <gain>5</gain>
+    <!-- 相机参数-->
     <!-- 装甲板筛选参数-->
     <lights_angle_max_dif>15.0</lights_angle_max_dif>                    <!--角度-->
     <lights_length_max_ratio>1.5</lights_length_max_ratio>
