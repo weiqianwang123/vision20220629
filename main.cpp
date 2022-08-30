@@ -1,6 +1,5 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
-#include <time.h>
 #include <iostream>
 #include <string>
 #include <cmath>
