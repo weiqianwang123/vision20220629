@@ -3,7 +3,7 @@
 #include <time.h>
 #include <iostream>
 #include <string>
-#include <cmath>
+
 
 #include "ArmorBox.h"
 #include "Armor_Detector.h"
