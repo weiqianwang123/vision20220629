@@ -35,15 +35,18 @@ void Solver::set3DPoints(const BoxSize &_box_size){
         points_3D.clear();
         int width,height;
         box_size=_box_size;
-        if(box_size==BIG){
+        if(box_size==BIG)
+        {
             width=param.big_armor_boxes_real_width;
             height=param.big_armor_boxes_real_height;
         }
-        else if(box_size == SMALL){
+        else if(box_size == SMALL)
+        {
             width=param.small_armor_boxes_real_width;
             height=param.small_armor_boxes_real_height;
         }
-        else if (box_size == RUNE_ARMOR){
+        else if (box_size == RUNE_ARMOR)
+        {
             width = param.rune_armor_boxes_real_width;
             height = param.rune_armor_boxes_real_height;
         }

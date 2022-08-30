@@ -23,6 +23,8 @@ public:
     ArmorBoxes _armor_boxes;                     // 目标装甲板集
     LightBlobs _light_blobs;// 目标灯条集
     Mat armor_video;
+    cv::RotatedRect _res_last = cv::RotatedRect();
+    cv::Rect _dect_rect = cv::Rect();
 
 
 

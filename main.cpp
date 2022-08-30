@@ -31,7 +31,8 @@ int main()
         chrono::steady_clock::time_point t2 = chrono::steady_clock::now();
         chrono::duration<double> time_used = chrono::duration_cast<chrono::duration<double>>(t2 - t1);
         cout << "solve time cost=" << 1/time_used.count() << "" << endl;
-        //imshow("armor1",armor_video);
+
+        imshow("armor1",armor_video);
 
         waitKey(1);
 

@@ -107,6 +107,7 @@ ArmorBox::ArmorBox(const LightBlob &left, const LightBlob &right, uint32_t times
     rect = RotatedRect(center, Size(width, height), angle);
 
 
+
 }
 void ArmorBox::getPoints(std::vector<cv::Point2f> &pts)
 {

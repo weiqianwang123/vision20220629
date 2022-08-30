@@ -78,7 +78,29 @@ bool ArmorDetector::isBadArmor(int i, int j, const LightBlobs &lightblobs)
 
 void ArmorDetector::find_light_blob(cv::Mat armor_video)
 {
+    const cv::Point & last_result = _res_last.center;
+    if(last_result.x == 0 || last_result.y == 0){
+        _dect_rect = Rect(0, 0, armor_video.cols, armor_video.rows);
+    }
+    else
+    {
+        Rect rect = _res_last.boundingRect();
+        double scale_w = 1.3 + 0.7;
+        double scale_h = 2;
+        int w = int(rect.width * scale_w);
+        int h = int(rect.height * scale_h);
+        Point center = last_result;
+        int x = std::max(center.x - w, 0);
+        int y = std::max(center.y - h, 0);
+        Point lu = Point(x, y);
+        x = std::min(center.x + w, armor_video.cols);
+        y = std::min(center.y + h, armor_video.rows);
+        Point rd = Point(x, y);
 
+
+        _dect_rect = Rect(lu, rd);
+        armor_video(_dect_rect).copyTo(armor_video);
+    }
     Mat gray_armor_video;
     Mat sub_armor_video;
     Mat th1_armor_video;           //binary after gray
@@ -142,12 +164,15 @@ void ArmorDetector::find_armor_boxes(Mat armor_video)
                 continue;
             _armor_boxes.push_back(ArmorBox(_light_blobs[i],_light_blobs[j]));
             _armor_boxes[p].getPoints(_pts);
+            _res_last = _armor_boxes[p].rect;
+            p++;
             solver.solve(_pts,SMALL);
             cout<< "pitch:"<<solver.pitch<<endl;
             cout<< "yaw:"<< solver.yaw<<endl;
             cout<<"distance:"<<solver.distance<<endl;
             Point2f vertex[4]={};
             _armor_boxes[k].rect.points(vertex);
+            k++;
             for(int j=0;j<4;j++)
             {
                 line(armor_video,vertex[j],vertex[(j+1)%4],Scalar(0,255,0),2,LINE_AA);
@@ -157,6 +182,7 @@ void ArmorDetector::find_armor_boxes(Mat armor_video)
 
 
     }
+
 }
 
 
