@@ -72,6 +72,9 @@ public:
     Rect box;
     float anglediff;
 
+    int id;                                         // 装甲板id
+    float confidence;
+
     void getPoints(std::vector<cv::Point2f> &);
 
     ArmorBox(const LightBlob &left, const LightBlob &right, uint32_t timestamp = 0, int box_id = 10);

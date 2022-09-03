@@ -1,5 +1,7 @@
 #include "Armor_Detector.h"
 #include <math.h>
+#include <chrono>
+#include <string.h>
 
 bool ArmorDetector::filterLightBlob(const std::vector<cv::Point> &contour)
 {
@@ -48,7 +50,6 @@ bool ArmorDetector::isCoupleLight(const LightBlob &light_blob_i, const LightBlob
 /*
 bool ArmorDetector::matchArmorBoxes(LightBlobs &light_blobs, ArmorBoxes &armor_boxes)
 {
-
 }
 */
 bool ArmorDetector::isBadArmor(int i, int j, const LightBlobs &lightblobs)
@@ -151,8 +152,10 @@ void ArmorDetector::find_light_blob(cv::Mat armor_video)
 void ArmorDetector::find_armor_boxes(Mat armor_video)
 {
     Solver solver;
+    //Point point = (20);
     int p=0;
     int k=0;
+    string string;
     vector<Point2f> _pts;
     for(int i=0;i<_light_blobs.size();i++)
     {
@@ -165,11 +168,26 @@ void ArmorDetector::find_armor_boxes(Mat armor_video)
             _armor_boxes.push_back(ArmorBox(_light_blobs[i],_light_blobs[j]));
             _armor_boxes[p].getPoints(_pts);
             _res_last = _armor_boxes[p].rect;
-            p++;
             solver.solve(_pts,SMALL);
             cout<< "pitch:"<<solver.pitch<<endl;
             cout<< "yaw:"<< solver.yaw<<endl;
             cout<<"distance:"<<solver.distance<<endl;
+            try
+            {
+                getArmorNum(_armor_boxes);
+            }
+            catch(std::bad_cast)
+            {
+                cout<< "error!"<<endl;
+            }
+
+
+
+            //cout<<_armor_boxes[p].id<<endl;
+
+            string = to_string(_armor_boxes[p].id);
+            p++;
+            //putText("armor1",string,point,cv::FONT_HERSHEY_SIMPLEX,0.45, CV_RGB(255,230,0),1.8);
             Point2f vertex[4]={};
             _armor_boxes[k].rect.points(vertex);
             k++;
@@ -185,12 +203,39 @@ void ArmorDetector::find_armor_boxes(Mat armor_video)
 
 }
 
-
-
-/*ArmorDetector::ArmorDetector(Mat video)
+bool ArmorDetector::getArmorNum(ArmorBoxes &armor_boxes)
 {
-    armor_video = video;
-    enemy_color = BLUE;
-}*/
+    Mat temp;
+
+    for (auto &armor : armor_boxes) {
+        adjustBox(armor.box);
+        cout << "OK: " << __LINE__ << endl;
+        temp = src(Rect2d(armor.box));
+        resize(temp, temp, Size(28, 28), cv::INTER_LINEAR);
+        Gamma(temp, temp, 0.6);
+        cvtColor(temp, temp, COLOR_BGR2GRAY);
+        armor.id = classifier(temp);
+        armor.confidence = 1.0;
+        cout<<armor.id<<endl;
+    }
+}
+
+
+void ArmorDetector::adjustBox(Rect &r)
+{
+    r.y -= r.height / 2.0 * param.box_height_enlarge;
+    r.height *= 2.0 * param.box_height_enlarge;
+    r &= Rect(Point(0, 0), src.size());
+}
+
+
+
+/*
+ArmorDetector::ArmorDetector(Mat video)
+{
+
+    classifier = Classifier("../Configure/param/");
+}
+*/
 
 

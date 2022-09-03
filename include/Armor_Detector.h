@@ -9,30 +9,32 @@
 #include "Solver.h"
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
+#include "classifier.h"
+#include "tool.h"
+#include "Mat_time.h"
 
 
 
 class ArmorDetector
 {
+public:
     ArmorParam param;
     COLOR enemy_color;
+    Classifier classifier;
+    Mat_time src;
 
 public:
     //ArmorBox target;                             // 目标装甲板
     //ArmorBox last_target;                        // 上次识别到的目标
     ArmorBoxes _armor_boxes;                     // 目标装甲板集
     LightBlobs _light_blobs;// 目标灯条集
-    Mat armor_video;
+    Mat_time armor_video;
     cv::RotatedRect _res_last = cv::RotatedRect();
     cv::Rect _dect_rect = cv::Rect();
 
 
 
     bool filterLightBlob(const std::vector<cv::Point> &contour);
-
-
-
-
 
     bool isCoupleLight(const LightBlob &light_blob_i, const LightBlob &light_blob_j);
 
@@ -43,13 +45,19 @@ public:
 
     void find_armor_boxes(Mat armor_video);
 
+    bool getArmorNum(ArmorBoxes &armor_boxes);
+
+    void adjustBox(cv::Rect &r);
 
 
 
-    ArmorDetector(Mat video)
+
+    ArmorDetector(Mat_time video)
     {
         armor_video = video;
+        src = video;
         enemy_color = BLUE;
+        classifier = Classifier("../configure/param/");
 
     }
 

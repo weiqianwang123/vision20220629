@@ -16,7 +16,7 @@ int main()
 {
     //camera::MercureDriver cap;
     VideoCapture  cap("../pnp_b.avi");
-    Mat armor_video;
+    Mat_time armor_video;
 
     //armor_video.create( ACQ_FRAME_HEIGHT,ACQ_FRAME_WIDTH,CV_8UC3);
     while(1)
